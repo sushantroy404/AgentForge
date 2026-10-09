@@ -1,5 +1,0 @@
-Step: 001
-Title: chore: establish initial project baseline from archive
-Member: Member C
-Milestone: Foundation
-Summary: Extracted and verified original project structure from AgentForge.zip as baseline.
