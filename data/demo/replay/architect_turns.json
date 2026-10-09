@@ -1,0 +1,44 @@
+{
+  "turns": [
+    {
+      "reply_to_user": "Great, Aria for Acme Cloud is taking shape. What should Aria handle, what must she refuse, which tools may she use, and what should she never do?",
+      "ops": [
+        {"op": "set", "path": "identity.name", "value": "Aria"},
+        {"op": "set", "path": "identity.role", "value": "Customer Support Specialist"},
+        {"op": "set", "path": "identity.company", "value": "Acme Cloud"},
+        {"op": "set", "path": "identity.target_audience", "value": "Acme customers asking about hardware orders, returns and refunds"},
+        {"op": "set", "path": "mission.primary_goal", "value": "Answer order status, return and refund questions for Acme customers using the refund policy and order lookups."},
+        {"op": "add", "path": "persona.tone", "value": ["warm", "concise", "factual"]}
+      ],
+      "assumptions": [],
+      "request_upload": false,
+      "ready_to_finalize": false
+    },
+    {
+      "reply_to_user": "Scope, tools and guardrails recorded. Please upload the refund policy so Aria can answer from it.",
+      "ops": [
+        {"op": "add", "path": "mission.in_scope_topics", "value": ["order status", "refund eligibility", "damaged shipments", "escalating refunds over $500"]},
+        {"op": "add", "path": "mission.out_of_scope_topics", "value": ["competitor comparisons", "tax or legal advice", "custom discounts"]},
+        {"op": "add", "path": "tools", "value": ["lookup_order", "escalate_to_human"]},
+        {"op": "add", "path": "guardrails.never_do_rules", "value": ["Never invent order details", "Never promise refunds outside the policy"]}
+      ],
+      "assumptions": [],
+      "request_upload": true,
+      "ready_to_finalize": false
+    },
+    {
+      "reply_to_user": "Almost there. The only thing left is a greeting message; tell me one, or use 'Fill defaults & finalize'.",
+      "ops": [],
+      "assumptions": [],
+      "request_upload": false,
+      "ready_to_finalize": false
+    }
+  ],
+  "document_confirm": {
+    "reply_to_user": "I've indexed your document and noted its key rules (the refund window, the damaged-shipment reporting deadline and the high-value escalation limit). Does that match what you expect?",
+    "ops": [], "assumptions": [], "request_upload": false, "ready_to_finalize": false
+  },
+  "fallback": {
+    "reply_to_user": "Sorry, I had trouble with that. Could you rephrase?"
+  }
+}
