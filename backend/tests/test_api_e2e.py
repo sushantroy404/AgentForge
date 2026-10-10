@@ -1,11 +1,11 @@
 import json
 
-from .conftest import POLICY, build_demo_specialist, upload, wait_job
+from .conftest import POLICY, build_test_specialist, upload, wait_job
 
 
 def test_health_tools_and_jobs_404(client):
     h = client.get("/api/health").json()
-    assert "demo_mode" in h and h["lancedb"] is True
+    assert "ollama" in h and h["lancedb"] is True
     assert {t["tool_id"] for t in client.get("/api/tools").json()} >= {"lookup_order", "escalate_to_human"}
     assert client.get("/api/jobs/nope").status_code == 404
 
@@ -23,8 +23,8 @@ def test_full_flow_and_job_stages(client):
 
 def test_document_injection_warning(client):
     sid = client.post("/api/architect/sessions", json={}).json()["session_id"]
-    from .fakes import ROOT
-    job = upload(client, sid, ROOT / "data" / "demo" / "injected_doc.md")
+    from .fakes import FIXTURES
+    job = upload(client, sid, FIXTURES / "injected_doc.md")
     assert job["status"] == "done" and len(job["result"]["warnings"]) == 2
 
 
@@ -58,7 +58,7 @@ def test_sessions_persist_across_app_restart(client, settings, llm):
     from fastapi.testclient import TestClient
     from app.main import create_app
     sid = client.post("/api/architect/sessions", json={}).json()["session_id"]
-    spec = build_demo_specialist(client)
+    spec = build_test_specialist(client)
     with TestClient(create_app(settings, llm)) as c2:
         assert c2.get(f"/api/architect/sessions/{sid}").status_code == 200
         assert c2.get(f"/api/specialists/{spec}").json()["status"] == "verified"

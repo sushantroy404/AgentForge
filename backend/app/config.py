@@ -1,7 +1,5 @@
 """Settings. Relative paths resolve against the repo root, not the working directory."""
 from pathlib import Path
-from typing import Literal
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -15,7 +13,6 @@ class Settings(BaseSettings):
     BACKEND_PORT: int = 8000
     LOG_LEVEL: str = "INFO"
     CORS_ORIGINS: str = "http://localhost:5173"
-    DEMO_MODE: Literal["off", "replay", "auto"] = "off"
 
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     ARCHITECT_MODEL: str = "gemma4:e4b"
@@ -54,8 +51,6 @@ class Settings(BaseSettings):
     def lancedb_uri(self) -> Path: return self.resolve(self.LANCEDB_URI)
     @property
     def manifests_dir(self) -> Path: return self.resolve(self.MANIFESTS_DIR)
-    @property
-    def demo_dir(self) -> Path: return self.data_dir / "demo"
     @property
     def cors_list(self) -> list[str]:
         return [o.strip() for o in self.CORS_ORIGINS.split(",") if o.strip()]

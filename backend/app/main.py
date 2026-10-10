@@ -17,7 +17,6 @@ from .services.scope_gate import ScopeGate
 from .services.smoke_test_service import SmokeTestService
 from .services.specialist_runtime import SpecialistRuntime
 from .storage.store import Store
-from .tools import mock_tools  # noqa: F401  (registers tools)
 
 
 @dataclass

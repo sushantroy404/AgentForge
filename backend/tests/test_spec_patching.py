@@ -2,7 +2,7 @@ import pytest
 
 from app.models.manifest import DraftSpec, PatchOp
 from app.services import spec_manager as sm
-from app.tools import mock_tools  # noqa: F401
+from tests import support_tools  # noqa: F401
 
 
 def op(o, p, v):

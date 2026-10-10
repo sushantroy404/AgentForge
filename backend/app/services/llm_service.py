@@ -1,22 +1,17 @@
-"""Ollama wrapper: schema-constrained 'envelope' chat, embeddings, health. Falls back to
-DemoReplay / hash embeddings according to DEMO_MODE."""
-import hashlib
+"""Ollama wrapper: schema-constrained 'envelope' chat, embeddings, health."""
 import json
 import logging
 import math
-import re
 from typing import Any
 
 import httpx
 from pydantic import BaseModel, ValidationError
 
 from ..config import Settings
-from .demo_replay import DemoReplay
 
 log = logging.getLogger("agentforge.llm")
 
 PREFIX = {"document": "search_document: ", "query": "search_query: "}
-_STOP = set("a an the and or of to in on for with is are was were be do does did can could i you my your it this that what how about me please".split())
 
 
 class LLMUnavailable(Exception):
@@ -25,19 +20,6 @@ class LLMUnavailable(Exception):
 
 class LLMOutputError(Exception):
     pass
-
-
-def hash_embed(text: str, dim: int = 512) -> list[float]:
-    """Deterministic bag-of-words embedding. Used by tests and by replay mode (no Ollama)."""
-    vec = [0.0] * dim
-    for w in re.findall(r"[a-z0-9$]+", text.lower()):
-        if w in _STOP:
-            continue
-        w = w[:6]  # crude stem so compare/comparisons and shipment/shipments collide
-        h = int(hashlib.md5(w.encode()).hexdigest(), 16)
-        vec[h % dim] += 1.0
-    n = math.sqrt(sum(v * v for v in vec)) or 1.0
-    return [v / n for v in vec]
 
 
 def _normalize(v: list[float]) -> list[float]:
@@ -50,7 +32,6 @@ class LLMService:
         self.s = settings
         self.client = client or httpx.AsyncClient(base_url=settings.OLLAMA_BASE_URL,
                                                   timeout=settings.OLLAMA_TIMEOUT_SECONDS)
-        self.replay = DemoReplay(settings.demo_dir / "replay")
 
     # ------------------------------------------------------------------ chat
     def _model_for(self, role: str) -> str:
@@ -58,15 +39,7 @@ class LLMService:
 
     async def chat_envelope(self, role: str, system: str, messages: list[dict],
                             schema: type[BaseModel], temperature: float = 0.2) -> BaseModel:
-        if self.s.DEMO_MODE == "replay":
-            return self.replay.chat(role, system, messages, schema)
-        try:
-            return await self._ollama_envelope(role, system, messages, schema, temperature)
-        except LLMUnavailable:
-            if self.s.DEMO_MODE == "auto":
-                log.warning("Ollama unavailable; using replay for %s", role)
-                return self.replay.chat(role, system, messages, schema)
-            raise
+        return await self._ollama_envelope(role, system, messages, schema, temperature)
 
     async def _ollama_envelope(self, role, system, messages, schema, temperature) -> BaseModel:
         msgs = [{"role": "system", "content": system}] + list(messages)
@@ -98,8 +71,6 @@ class LLMService:
 
     # ------------------------------------------------------------------ embeddings
     async def embed(self, texts: list[str], kind: str = "document") -> list[list[float]]:
-        if self.s.DEMO_MODE == "replay":
-            return [hash_embed(t) for t in texts]
         inputs = [PREFIX[kind] + t for t in texts]
         try:
             r = await self.client.post("/api/embed", json={"model": self.s.EMBEDDING_MODEL, "input": inputs,
@@ -116,20 +87,11 @@ class LLMService:
             r.raise_for_status()
             return [_normalize(v) for v in r.json()["embeddings"]]
         except (httpx.ConnectError, httpx.ConnectTimeout, httpx.ReadTimeout) as e:
-            if self.s.DEMO_MODE == "auto":
-                return [hash_embed(t) for t in texts]
             raise LLMUnavailable(f"Ollama unreachable: {e}") from e
-        except LLMUnavailable:
-            if self.s.DEMO_MODE == "auto":
-                return [hash_embed(t) for t in texts]
-            raise
 
     # ------------------------------------------------------------------ health
     async def health(self) -> dict[str, Any]:
-        out: dict[str, Any] = {"demo_mode": self.s.DEMO_MODE, "ollama": False, "models_present": {}}
-        if self.s.DEMO_MODE == "replay":
-            out["ollama"] = "skipped (replay)"
-            return out
+        out: dict[str, Any] = {"ollama": False, "models_present": {}}
         try:
             r = await self.client.get("/api/tags", timeout=3)
             names = {m["name"] for m in r.json().get("models", [])}
@@ -142,8 +104,6 @@ class LLMService:
         return out
 
     async def warm_up(self) -> None:
-        if self.s.DEMO_MODE == "replay":
-            return
         try:
             await self.client.post("/api/generate", json={"model": self.s.SPECIALIST_MODEL, "prompt": "",
                                                           "keep_alive": self.s.OLLAMA_KEEP_ALIVE}, timeout=5)

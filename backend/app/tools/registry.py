@@ -20,16 +20,16 @@ class ToolDef:
     args_model: type[BaseModel]
     fn: Callable[..., dict]
     example_prompt: str = ""
-    demo_tokens: tuple[str, ...] = ()   # tokens a good reply to example_prompt should contain
+    expected_tokens: tuple[str, ...] = ()   # tokens a good reply to example_prompt should contain
 
 
 _REGISTRY: dict[str, ToolDef] = {}
 
 
 def register_tool(tool_id: str, description: str, args_model: type[BaseModel],
-                  example_prompt: str = "", demo_tokens: tuple[str, ...] = ()):
+                  example_prompt: str = "", expected_tokens: tuple[str, ...] = ()):
     def deco(fn: Callable[..., dict]):
-        _REGISTRY[tool_id] = ToolDef(tool_id, description, args_model, fn, example_prompt, demo_tokens)
+        _REGISTRY[tool_id] = ToolDef(tool_id, description, args_model, fn, example_prompt, expected_tokens)
         return fn
     return deco
 

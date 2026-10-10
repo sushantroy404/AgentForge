@@ -37,4 +37,4 @@ export interface SpecialistDetail {
     provenance: { assumptions_made: string[] } };
   sha256: string; status: string; smoke_report: SmokeReport | null;
 }
-export interface Health { demo_mode: string; ollama: boolean | string; models_present: Record<string, boolean>; lancedb: boolean }
+export interface Health { ollama: boolean; models_present: Record<string, boolean>; lancedb: boolean }

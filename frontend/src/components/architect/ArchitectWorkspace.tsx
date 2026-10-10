@@ -8,14 +8,12 @@ import CompletenessMeter from "./CompletenessMeter";
 import DocumentUploadCard from "./DocumentUploadCard";
 import FinalizeBar from "./FinalizeBar";
 import LiveSpecInspector from "./LiveSpecInspector";
-import QuickFillPills from "./QuickFillPills";
 
 export default function ArchitectWorkspace({ onOpenSpecialist }: { onOpenSpecialist: (id: string) => void }) {
   const [session, setSession] = useState<SessionView | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [changed, setChanged] = useState<Set<string>>(new Set());
-  const [prefill, setPrefill] = useState<{ text: string; n: number } | null>(null);
   const [build, setBuild] = useState<{ fill: boolean } | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -76,10 +74,9 @@ export default function ArchitectWorkspace({ onOpenSpecialist }: { onOpenSpecial
   return (
     <div className="grid h-full min-h-0 grid-cols-1 md:grid-cols-[minmax(0,1fr)_26rem]">
       <div className="min-h-0 border-r border-rule bg-paper">
-        <ChatPanel who="The Architect" messages={session.messages} busy={busy} error={error} onSend={send} prefill={prefill}
+        <ChatPanel who="The Architect" messages={session.messages} busy={busy} error={error} onSend={send}
           placeholder="Describe the Specialist you want to build…"
           above={<>
-            <QuickFillPills onPick={(t) => setPrefill({ text: t, n: Date.now() })} />
             <div className="mb-3"><DocumentUploadCard sessionId={session.session_id} docs={session.documents} onDone={refresh} /></div>
           </>} />
       </div>

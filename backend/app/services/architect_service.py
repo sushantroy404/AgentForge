@@ -43,7 +43,7 @@ class ArchitectService:
 
     # ------------------------------------------------------------ prompt
     def _system(self, sess: ArchitectSession) -> str:
-        tools = ", ".join(registry.tool_ids())
+        tools = ", ".join(registry.tool_ids()) or "(none registered: do not propose tools)"
         report = spec_manager.compute_missing(sess.draft)
         extra = ""
         if sess.user_turns >= 6 and report.missing_required:

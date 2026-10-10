@@ -29,7 +29,6 @@ def line(ok: bool, msg: str) -> bool:
 
 async def main() -> int:
     s = Settings()
-    s.DEMO_MODE = "off"
     llm = LLMService(s)
     results: list[bool] = []
 
@@ -54,7 +53,7 @@ async def main() -> int:
         try:
             out = await llm.chat_envelope("architect", "You help define an AI Specialist. Output the JSON envelope. "
                                           "Writable path example: identity.name (op 'set').",
-                                          [{"role": "user", "content": f"Call it Aria number {i}. We are Acme."}], ArchitectTurn)
+                                          [{"role": "user", "content": f"Call it Nova number {i}. We are Example Co."}], ArchitectTurn)
             good += bool(out.reply_to_user)  # type: ignore[attr-defined]
         except Exception as e:  # noqa: BLE001
             print("   envelope error:", str(e)[:120])
@@ -73,15 +72,15 @@ async def main() -> int:
         results.append(line(False, f"context test errored: {str(e)[:120]}"))
 
     # 4. tool_call envelope
-    Turn2 = build_specialist_turn_model(["lookup_order"])
+    Turn2 = build_specialist_turn_model(["get_item"])
     good = 0
     for _ in range(10):
         try:
             out = await llm.chat_envelope(
-                "specialist", "Tools: lookup_order(order_id). To check an order respond with "
-                "action 'tool_call', tool_id 'lookup_order', args {'order_id': ...}.",
-                [{"role": "user", "content": "Please check order ORD-1002."}], Turn2)
-            good += out.action == "tool_call" and out.tool_id == "lookup_order" and bool((out.args or {}).get("order_id"))  # type: ignore[attr-defined]
+                "specialist", "Tools: get_item(item_id). To look up an item respond with "
+                "action 'tool_call', tool_id 'get_item', args {'item_id': ...}.",
+                [{"role": "user", "content": "Please look up item X-100."}], Turn2)
+            good += out.action == "tool_call" and out.tool_id == "get_item" and bool((out.args or {}).get("item_id"))  # type: ignore[attr-defined]
         except Exception:  # noqa: BLE001
             pass
     results.append(line(good >= 8, f"tool_call envelope valid in {good}/10 runs (need >= 8)"))

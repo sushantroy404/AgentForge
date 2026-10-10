@@ -1,6 +1,6 @@
 import pytest
 
-from app.tools import mock_tools  # noqa: F401
+from tests import support_tools  # noqa: F401
 from app.tools import registry as r
 
 

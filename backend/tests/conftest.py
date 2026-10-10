@@ -6,9 +6,10 @@ from fastapi.testclient import TestClient
 from app.config import Settings
 from app.main import create_app
 
-from .fakes import ROOT, FakeLLM
+from . import support_tools  # noqa: F401  (registers test-only tools)
+from .fakes import FIXTURES, FakeLLM
 
-POLICY = ROOT / "data" / "demo" / "acme_refund_policy.md"
+POLICY = FIXTURES / "refund_policy.md"
 TURN1 = "We are Acme Cloud. Build a Customer Support Specialist named Aria for Acme customers asking about hardware orders, returns and refunds."
 TURN2 = "In scope: order status, refunds. Out of scope: competitor comparisons. Enable lookup_order and escalate_to_human."
 
@@ -18,7 +19,7 @@ def settings(tmp_path):
     d = tmp_path / "data"
     return Settings(_env_file=None, DATA_DIR=str(d), UPLOAD_DIR=str(d / "uploads"), LANCEDB_URI=str(d / "lancedb"),
                     MANIFESTS_DIR=str(d / "manifests"), RAG_SCORE_THRESHOLD=0.08, SCOPE_OUT_MIN=0.35,
-                    SCOPE_MARGIN=0.05, DEMO_MODE="off")
+                    SCOPE_MARGIN=0.05)
 
 
 @pytest.fixture
@@ -51,7 +52,7 @@ def upload(client, sid, path=POLICY, name=None):
     return wait_job(client, r.json()["job_id"])
 
 
-def build_demo_specialist(client) -> str:
+def build_test_specialist(client) -> str:
     sid = client.post("/api/architect/sessions", json={}).json()["session_id"]
     assert client.post(f"/api/architect/sessions/{sid}/chat", json={"message": TURN1}).status_code == 200
     assert client.post(f"/api/architect/sessions/{sid}/chat", json={"message": TURN2}).status_code == 200
@@ -66,4 +67,4 @@ def build_demo_specialist(client) -> str:
 
 @pytest.fixture
 def specialist(client):
-    return build_demo_specialist(client)
+    return build_test_specialist(client)

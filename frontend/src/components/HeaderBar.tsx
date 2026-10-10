@@ -13,12 +13,11 @@ interface Props {
 
 function Pill({ health, err }: { health: Health | null; err: boolean }) {
   if (err || !health) return <span className="rounded-full bg-stop-wash px-2.5 py-1 text-xs text-stop" title="Backend unreachable">Backend offline</span>;
-  if (health.demo_mode === "replay") return <span className="rounded-full bg-flag-wash px-2.5 py-1 text-xs text-flag" title="Scripted answers, no Ollama">Demo mode</span>;
   const ok = health.ollama === true && Object.values(health.models_present).every(Boolean);
   return ok
     ? <span className="rounded-full bg-trace-wash px-2.5 py-1 text-xs text-trace">Ollama ready</span>
     : <span className="rounded-full bg-flag-wash px-2.5 py-1 text-xs text-flag" title="Run: ollama serve, then pull the models in .env">
-        {health.ollama ? "Model missing" : "Start Ollama"}{health.demo_mode === "auto" ? " (replay fallback on)" : ""}
+        {health.ollama ? "Model missing" : "Start Ollama"}
       </span>;
 }
 

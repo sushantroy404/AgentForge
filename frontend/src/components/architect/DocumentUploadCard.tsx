@@ -29,10 +29,6 @@ export default function DocumentUploadCard({ sessionId, docs, onDone }: Props) {
     setErr(null);
     try { setJobId((await client.upload(sessionId, file)).job_id); } catch (e) { setErr((e as Error).message); }
   };
-  const useDemo = async (name: string) => {
-    const r = await fetch(`/demo/${name}`);
-    start(new File([await r.blob()], name, { type: "text/markdown" }));
-  };
 
   const running = job?.status === "running" || (jobId && !job && !error);
   const warnings: string[] = job?.status === "done" ? job.result?.warnings ?? [] : docs.flatMap((d) => d.warnings);
@@ -43,8 +39,6 @@ export default function DocumentUploadCard({ sessionId, docs, onDone }: Props) {
         <FileText size={16} className="text-ink-soft" />
         <span className="font-medium">Knowledge document</span>
         <button onClick={() => input.current?.click()} disabled={!!running} className="rounded border border-rule px-2 py-1 hover:border-trace disabled:opacity-40">Upload file</button>
-        <button onClick={() => useDemo("acme_refund_policy.md")} disabled={!!running} className="rounded border border-rule px-2 py-1 hover:border-trace disabled:opacity-40">Use demo policy</button>
-        <button onClick={() => useDemo("injected_doc.md")} disabled={!!running} className="rounded border border-rule px-2 py-1 text-ink-soft hover:border-flag disabled:opacity-40">Use trap document</button>
         <input ref={input} type="file" accept=".pdf,.md,.txt" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) start(f); e.target.value = ""; }} />
       </div>
       {docs.length > 0 && !running && <p className="mt-2 text-ink-soft">Indexed: {docs.map((d) => `${d.filename} (${d.chunk_count} sections)`).join(", ")}</p>}

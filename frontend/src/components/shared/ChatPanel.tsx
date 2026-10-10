@@ -10,16 +10,14 @@ interface Props {
   error: string | null;
   placeholder: string;
   onSend: (text: string) => Promise<boolean>;
-  prefill?: { text: string; n: number } | null;
   above?: ReactNode;
 }
 
-export default function ChatPanel({ who, messages, busy, error, placeholder, onSend, prefill, above }: Props) {
+export default function ChatPanel({ who, messages, busy, error, placeholder, onSend, above }: Props) {
   const [text, setText] = useState("");
   const [elapsed, setElapsed] = useState(0);
   const end = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { if (prefill) setText(prefill.text); }, [prefill?.n]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { end.current?.scrollIntoView({ behavior: "smooth", block: "end" }); }, [messages.length, busy]);
   useEffect(() => {
     if (!busy) { setElapsed(0); return; }

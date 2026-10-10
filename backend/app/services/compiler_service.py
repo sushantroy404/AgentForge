@@ -95,7 +95,7 @@ class CompilerService:
             td = registry.get_tool(draft.tools[0])
             if td.example_prompt:
                 tool_case = dict(kind="tool", prompt=td.example_prompt, expect_tool=td.tool_id,
-                                 must_contain_any=list(td.demo_tokens))
+                                 must_contain_any=list(td.expected_tokens))
         if tool_case is None:
             t = topics[-1]
             tool_case = dict(kind="rag", prompt=f"Can you tell me about {t}?", must_contain_any=[])

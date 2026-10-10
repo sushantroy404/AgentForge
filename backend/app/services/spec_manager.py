@@ -14,7 +14,7 @@ REQUIRED = [
 ]
 RECOMMENDED = ["knowledge.collection_id"]
 HINTS = {
-    "identity.name": "A short name for the Specialist, e.g. 'Aria'.",
+    "identity.name": "A short name for the Specialist, e.g. 'Nova'.",
     "identity.role": "Job title, e.g. 'Customer Support Specialist'.",
     "identity.company": "The company the Specialist represents.",
     "identity.target_audience": "Who talks to the Specialist.",
