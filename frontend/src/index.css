@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Familjen Grotesk", "Noto Sans Devanagari", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Newsreader", "Noto Sans Devanagari", ui-serif, Georgia, serif;
+  --font-mono: "JetBrains Mono", "Noto Sans Devanagari", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-paper: #eef1f4;
+  --color-sheet: #fbfcfd;
+  --color-ink: #14213d;
+  --color-ink-soft: #52607a;
+  --color-rule: #c9d1dc;
+  --color-trace: #0f766e;
+  --color-trace-wash: #d6efec;
+  --color-flag: #b45309;
+  --color-flag-wash: #fdebc8;
+  --color-stop: #b42318;
+  --color-stop-wash: #fde4e1;
+}
+
+html, body, #root { height: 100%; }
+body { background: var(--color-paper); color: var(--color-ink); font-family: var(--font-sans); }
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, a:focus-visible {
+  outline: 2px solid var(--color-trace); outline-offset: 2px;
+}
+
+/* A field the Architect just wrote: a brief wash that fades, so the eye finds the change. */
+@keyframes just-written { from { background-color: var(--color-flag-wash); } to { background-color: transparent; } }
+.just-written { animation: just-written 2.4s ease-out; }
+@media (prefers-reduced-motion: reduce) { .just-written { animation: none; background-color: var(--color-flag-wash); } }
+
+.ledger-row { border-left: 3px solid var(--color-rule); }
+.ledger-row[data-state="filled"] { border-left-color: var(--color-trace); }
+.ledger-row[data-state="required"] { border-left-color: var(--color-flag); }
+.scroll-thin { scrollbar-width: thin; }
